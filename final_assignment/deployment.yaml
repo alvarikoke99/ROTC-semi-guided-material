@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Secret
+metadata:
+ name: db-password
+type: Opaque
+data:
+ password: QXAwMHJQYSQkdzByZCE=
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: db
+spec:
+ replicas: 1
+ selector:
+   matchLabels:
+     app: db
+ template:
+   metadata:
+     labels:
+       app: db
+   spec:
+     containers:
+     - name: db
+       image: postgres:16
+       env:
+       - name: POSTGRES_DB
+         value: postgres
+       - name: POSTGRES_USER
+         value: postgres
+       - name: POSTGRES_PASSWORD
+         valueFrom:
+           secretKeyRef:
+             name: db-password
+             key: password
+       ports:
+       - containerPort: 5432
