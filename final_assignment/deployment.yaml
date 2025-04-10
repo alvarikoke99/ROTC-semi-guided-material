@@ -68,11 +68,11 @@ spec:
    spec:
      containers:
      - name: backend
-       imagePullPolicy: Never
+       imagePullPolicy: IfNotPresent
        image: final_assignment-backend
        env:
        - name: db_address
-         value: db
+         value: db-svc
        - name: db_username
          value: postgres
        - name: db_name
