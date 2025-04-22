@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: db-deploy
+ namespace: crud-app
+spec:
+ replicas: 1
+ selector:
+   matchLabels:
+     app: db
+ template:
+   metadata:
+     labels:
+       app: db
+   spec:
+     volumes: 
+      - name: pg-data 
+        persistentVolumeClaim:
+          claimName: db-vol-claim
+     containers:
+     - name: db
+       image: postgres:16
+       volumeMounts: 
+        - name: pg-data 
+          mountPath: /var/lib/postgresql/data
+       env:
+       - name: POSTGRES_DB
+         value: postgres
+       - name: POSTGRES_USER
+         value: postgres
+       - name: POSTGRES_PASSWORD
+         valueFrom:
+           secretKeyRef:
+             name: db-password
+             key: password
+       ports:
+       - containerPort: 5432
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-svc
+  namespace: crud-app
+spec:
+  type: ClusterIP
+  selector:
+    app: db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

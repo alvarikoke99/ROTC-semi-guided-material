@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: backend-deploy
+ namespace: crud-app
+spec:
+ replicas: 1
+ selector:
+   matchLabels:
+     app: backend
+ template:
+   metadata:
+     labels:
+       app: backend
+   spec:
+     containers:
+     - name: backend
+       imagePullPolicy: IfNotPresent
+       image: final_assignment-backend
+       env:
+       - name: db_address
+         value: db-svc
+       - name: db_username
+         value: postgres
+       - name: db_name
+         value: postgres
+       - name: db_password
+         valueFrom:
+           secretKeyRef:
+             name: db-password
+             key: password
+       ports:
+       - containerPort: 8000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-api
+  namespace: crud-app
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
